@@ -1,28 +1,24 @@
 /**
  * Sapience Forecasting Agent
  * 
- * Generates predictions and publishes forecasts to the Ethereum Attestation Service (EAS)
+ * Generates predictions and publishes forecasts via Sapience SDK
  * on Arbitrum. Predictions are ranked by accuracy on the Sapience leaderboard.
  * 
  * No trading capital required - pure forecasting. 
  */
 
 import Groq from 'groq-sdk';
-import { ethers } from "ethers";
-import axios from "axios";
+import { postForecastAttestation, graphqlRequest } from '@sapience/sdk';
+import { gql } from 'graphql-request';
+import { DomeAPIClient } from '../utils/dome-client';
 
-interface Market {
+interface Condition {
   id: string;
   question: string;
-  description: string;
-  platform?: string;
-  currentPrice?: number;
-  volume?: number;
-  closeTime?: number;
-  resolution_date?: string;
-  yes_price?: number;
-  no_price?: number;
-  liquidity?: number;
+  shortName?: string;
+  description?: string;
+  endTime: number;
+  public: boolean;
 }
 
 interface Forecast {
@@ -36,58 +32,70 @@ interface Forecast {
   modelUsed?: string;
 }
 
-interface EASAttestation {
-  uid: string;
-  schema_uid: string;
-  transaction_hash: string;
-  block_number: number;
+interface SubmissionResult {
+  hash: string;
+  conditionId: string;
 }
 
 interface Config {
   privateKey: string;
-  arbitrumRpcUrl: string;
-  easSchemaUID: string;
   groqApiKey: string;
+  domeApiKey?: string;
+  domeApiUrl?: string;
 }
 
 export class ForecastingAgent {
   private groq: Groq;
-  private provider: ethers.JsonRpcProvider;
-  private signer: ethers.Signer;
-  private easContractAddress: string;
-  private easSchemaUID: string;
-  private walletAddress: string;
-  private config: Config;
+  private privateKey: string;
+  private domeClient?: DomeAPIClient;
 
   constructor(config: Config) {
-    this.config = config;
+    this.privateKey = config.privateKey;
     this.groq = new Groq({
       apiKey: config.groqApiKey,
     });
-    this.provider = new ethers.JsonRpcProvider(config.arbitrumRpcUrl);
-    this.signer = new ethers.Wallet(config.privateKey, this.provider);
-    this.walletAddress = ethers.getAddress(
-      ethers.computeAddress(new ethers.SigningKey(config.privateKey).publicKey)
-    );
-    this.easSchemaUID = config.easSchemaUID;
-    this.easContractAddress = "0xA1207F3BBa224E02c159c0dFpF493b4e5C10e6B9"; // EAS on Arbitrum
+    
+    if (config.domeApiKey) {
+      this.domeClient = new DomeAPIClient(
+        config.domeApiKey,
+        config.domeApiUrl
+      );
+      console.log('📊 Dome API client initialized');
+    }
   }
 
   /**
-   * Fetch active markets from Sapience
+   * Fetch active conditions from Sapience API
    */
-  async getMarkets(): Promise<Market[]> {
+  async getConditions(): Promise<Condition[]> {
     try {
-      const response = await axios.get("https://api.sapience.xyz/markets", {
-        params: {
-          status: "active",
-          limit:  50,
-        },
+      const nowSec = Math.floor(Date.now() / 1000);
+      const query = gql`
+        query Conditions($nowSec: Int) {
+          conditions(
+            where: { 
+              public: { equals: true }
+              endTime: { gt: $nowSec }
+            }
+            take: 50
+          ) {
+            id
+            question
+            shortName
+            description
+            endTime
+            public
+          }
+        }
+      `;
+      
+      const { conditions } = await graphqlRequest<{ conditions: Condition[] }>(query, {
+        nowSec,
       });
 
-      return response.data.markets;
+      return conditions || [];
     } catch (error) {
-      console.error("Error fetching markets:", error);
+      console.error("Error fetching conditions:", error);
       return [];
     }
   }
@@ -95,30 +103,42 @@ export class ForecastingAgent {
   /**
    * Generate a forecast using Groq with Kimi model
    */
-  async generateForecast(market: Market): Promise<Forecast> {
-    console.log(`\n🤖 Generating forecast for: ${market.question}`);
+  async generateForecast(condition: Condition): Promise<Forecast> {
+    console.log(`\n🤖 Generating forecast for: ${condition.shortName || condition.question}`);
 
-    const systemContext = `You are an expert prediction market analyst who uses statistical methods and market microstructure analysis to forecast outcomes. You understand order-book dynamics, calibration curves, and risk management principles.`;
+    const question = condition.shortName || condition.question;
+    const endDate = new Date(condition.endTime * 1000).toISOString();
 
-    const currentPrice = market.currentPrice || market.yes_price || 0.5;
-    const platform = market.platform || 'Unknown';
-    const volume = market.volume || 0;
-    const closeTime = market.closeTime || (market.resolution_date ? new Date(market.resolution_date).getTime() : null);
+    let domeMarketData = '';
+    if (this.domeClient) {
+      try {
+        const sentiment = await this.domeClient.getMarketSentiment(question);
+        if (sentiment.markets.length > 0) {
+          console.log(`  📊 Found ${sentiment.markets.length} similar markets on ${sentiment.platforms} platform(s)`);
+          domeMarketData = `\n\nRelated Market Data from Polymarket/Kalshi:\n`;
+          sentiment.markets.forEach(m => {
+            domeMarketData += `- ${m.platform.toUpperCase()}: "${m.question}" - YES: ${(m.yesPrice * 100).toFixed(1)}%, Volume: $${m.volume24h.toLocaleString()}\n`;
+          });
+          domeMarketData += `\nAverage YES price across platforms: ${(sentiment.avgYesPrice * 100).toFixed(1)}%\nTotal 24h volume: $${sentiment.avgVolume.toLocaleString()}`;
+        }
+      } catch (error) {
+        console.log(`  ⚠️ Could not fetch Dome data`);
+      }
+    }
+
+    const systemContext = `You are an expert prediction market analyst who uses statistical methods and market microstructure analysis to forecast outcomes. You analyze pricing across multiple platforms to detect inefficiencies.`;
 
     const userPrompt = `Analyze this prediction market and provide a statistical forecast:
 
-Market Information:
-- Question: "${market.question}"
-- Platform: ${platform.toUpperCase()}
-- Current Price: ${(currentPrice * 100).toFixed(1)}%
-- Volume: $${volume.toLocaleString()}
-- Close Date: ${closeTime ? new Date(closeTime).toISOString() : 'N/A'}
+Question: "${question}"
+End Date: ${endDate}
+${condition.description ? `Description: ${condition.description}` : ''}${domeMarketData}
 
-Using your statistical forecasting methodology, analyze if the market is efficiently priced or if there's an edge. Provide your analysis in JSON format:
+Using your statistical forecasting methodology and considering the market prices from other platforms (if available), analyze this question and provide your best probability estimate. Provide your analysis in JSON format:
 {
   "probability": <number 0-100>,
   "confidence": <number 0-100>,
-  "reasoning": "<detailed reasoning using market microstructure, historical patterns, and statistical analysis>",
+  "reasoning": "<brief reasoning in 1-2 sentences, under 160 characters, no URLs>",
   "expectedValue": <number>,
   "recommendation": "BUY" or "SELL" or "HOLD"
 }
@@ -126,7 +146,8 @@ Using your statistical forecasting methodology, analyze if the market is efficie
 Rules:
 - probability: Your calibrated probability estimate (0-100)
 - confidence: How confident you are in your estimate (0-100)
-- expectedValue: Expected value considering fees and spreads
+- reasoning: Keep it brief and factual, under 160 characters
+- expectedValue: Expected value considering uncertainty
 - recommendation: BUY if edge > 5%, SELL if edge < -5%, HOLD if fairly priced
 - Only recommend BUY/SELL if confidence > 65%`;
 
@@ -139,22 +160,12 @@ Rules:
           },
           {
             role: "user",
-            content: "Can you forecast future trades on prediction markets based on real data?"
-          },
-          {
-            role: "assistant",
-            content: "I can show you how to turn raw prediction-market data into statistically-driven forecasts. I use market microstructure analysis (order-book snapshots, bid-ask spreads, order-flow imbalance), calibrated probabilistic models, and proper risk management to detect when market prices drift from the best statistical estimate of underlying events."
-          },
-          {
-            role: "user",
             content: userPrompt,
           },
         ],
-        model: 'moonshotai/kimi-k2-instruct-0905',
+        model: 'llama-3.3-70b-versatile',
         temperature: 0.6,
-        max_completion_tokens: 4096,
-        top_p: 1,
-        stream: false,
+        max_tokens: 1024,
       });
 
       const content = chatCompletion.choices[0]?.message?.content || '';
@@ -167,14 +178,14 @@ Rules:
       const analysis = JSON.parse(jsonMatch[0]);
 
       const forecast: Forecast = {
-        marketId: market.id,
+        marketId: condition.id,
         probability: analysis.probability / 100,
         confidence: analysis.confidence / 100,
         reasoning: analysis.reasoning,
         expectedValue: analysis.expectedValue || 0,
         recommendation: analysis.recommendation === 'BUY' ? 'buy' : analysis.recommendation === 'SELL' ? 'sell' : 'hold',
         timestamp: Date.now(),
-        modelUsed: 'moonshotai/kimi-k2-instruct-0905',
+        modelUsed: 'llama-3.3-70b-versatile',
       };
 
       return forecast;
@@ -185,68 +196,34 @@ Rules:
   }
 
   /**
-   * Attest forecast onchain via EAS
+   * Submit forecast via Sapience SDK
    */
-  async attestForecast(forecast: Forecast): Promise<EASAttestation> {
+  async submitForecastToSapience(forecast: Forecast): Promise<SubmissionResult> {
     try {
-      // Import EAS SDK (lite version - would use full SDK in production)
-      const easABI = [
-        "function attest(tuple(bytes32 schema, tuple(address recipient, uint64 expirationTime, bool revocable, bytes32 refUID, bytes data) data)) external payable returns (bytes32)",
-      ];
-
-      const easContract = new ethers.Contract(
-        this.easContractAddress,
-        easABI,
-        this.signer
-      );
-
-      // Encode attestation data
-      const abiCoder = ethers.AbiCoder.defaultAbiCoder();
-      const encodedData = abiCoder.encode(
-        [
-          "string", // marketId
-          "uint256", // probability (0-10000 for precision)
-          "uint256", // confidence
-          "string", // reasoning
-          "uint64", // timestamp
-        ],
-        [
-          forecast.marketId,
-          Math.round(forecast.probability * 10000),
-          Math.round(forecast.confidence * 10000),
-          forecast.reasoning,
-          Math.floor(forecast.timestamp / 1000),
-        ]
-      );
-
-      // Create attestation
-      const tx = await easContract.attest({
-        schema: this.easSchemaUID,
-        data: {
-          recipient: this.walletAddress,
-          expirationTime: 0, // No expiration
-          revocable:  true,
-          refUID: 
-            "0x0000000000000000000000000000000000000000000000000000000000000000",
-          data: encodedData,
+      console.log(`  📝 Submitting forecast to Sapience...`);
+      
+      const { hash } = await postForecastAttestation({
+        market: {
+          marketId: parseInt(forecast.marketId, 16),
+          address: forecast.marketId as `0x${string}`,
+          question: '',
         },
+        prediction: {
+          probability: Math.round(forecast.probability * 100),
+          reasoning: forecast.reasoning,
+          confidence: Math.round(forecast.confidence * 100),
+        },
+        chainId: 42161,
+        rpc: 'https://arb1.arbitrum.io/rpc',
+        privateKey: this.privateKey as `0x${string}`,
       });
 
-      // Wait for confirmation
-      const receipt = await tx. wait();
-
-      // Extract attestation UID from logs
-      // (In production, would properly parse events)
-      const attestationUID = receipt.logs[0]?.topics?.[1] || "0x";
-
       return {
-        uid:  attestationUID,
-        schema_uid: this.easSchemaUID,
-        transaction_hash: receipt.hash,
-        block_number: receipt.blockNumber,
+        hash,
+        conditionId: forecast.marketId,
       };
     } catch (error) {
-      console.error("Error attesting forecast:", error);
+      console.error("Error submitting forecast:", error);
       throw error;
     }
   }
@@ -256,37 +233,35 @@ Rules:
    */
   async run(maxForecasts: number = 10): Promise<void> {
     console.log("🤖 Forecasting Agent Starting...");
-    console.log(`📊 Wallet: ${this.walletAddress}`);
-    console.log(`🏗️  Schema: ${this.easSchemaUID}`);
+    console.log(`🔑 Using private key: ${this.privateKey.slice(0, 6)}...${this.privateKey.slice(-4)}`);
 
     try {
-      // Fetch markets
-      const markets = await this.getMarkets();
-      console.log(`\n📈 Found ${markets. length} active markets`);
+      const conditions = await this.getConditions();
+      console.log(`\n📊 Found ${conditions.length} active conditions`);
 
-      // Generate forecasts for top markets
-      const selectedMarkets = markets.slice(0, maxForecasts);
+      if (conditions.length === 0) {
+        console.log("No active conditions found. Exiting.");
+        return;
+      }
 
-      for (const market of selectedMarkets) {
+      const selectedConditions = conditions.slice(0, maxForecasts);
+
+      for (const condition of selectedConditions) {
         try {
-          console.log(`\n🎯 Forecasting:  ${market.question}`);
+          console.log(`\n🎯 Forecasting: ${condition.shortName || condition.question}`);
 
-          // Generate forecast
-          const forecast = await this.generateForecast(market);
+          const forecast = await this.generateForecast(condition);
           console.log(`  Probability: ${(forecast.probability * 100).toFixed(1)}%`);
           console.log(`  Confidence: ${(forecast.confidence * 100).toFixed(1)}%`);
           console.log(`  Reasoning: ${forecast.reasoning}`);
 
-          // Attest onchain
-          console.log(`  📝 Attesting onchain...`);
-          const attestation = await this.attestForecast(forecast);
-          console. log(`  ✅ Attestation UID: ${attestation.uid}`);
-          console.log(`  📍 Tx Hash: ${attestation.transaction_hash}`);
+          const result = await this.submitForecastToSapience(forecast);
+          console.log(`  ✅ Submitted! Tx Hash: ${result.hash}`);
+          console.log(`  🔗 View: https://arbiscan.io/tx/${result.hash}`);
 
-          // Small delay to avoid rate limiting
           await new Promise((resolve) => setTimeout(resolve, 2000));
         } catch (error) {
-          console.error(`  ❌ Error forecasting market:  ${error}`);
+          console.error(`  ❌ Error forecasting condition: ${error}`);
           continue;
         }
       }
@@ -299,16 +274,14 @@ Rules:
   }
 }
 
-// Main execution
 if (require.main === module) {
   const config: Config = {
     privateKey: process.env.PRIVATE_KEY || "",
-    arbitrumRpcUrl: process.env.ARBITRUM_RPC_URL || "",
-    easSchemaUID: process.env.EAS_SCHEMA_UID || "",
     groqApiKey: process.env.GROQ_API_KEY || "",
+    domeApiKey: process.env.DOME_API_KEY,
+    domeApiUrl: process.env.DOME_API_URL,
   };
 
   const agent = new ForecastingAgent(config);
-
   agent.run(10).catch(console.error);
 }

@@ -1,54 +1,112 @@
-# 🤖 Sapience Arbitrage Rebalancer
+# Sapience Dual Agent - Forecasting + Trading
 
-**Autonomous multi-market arbitrage & wallet rebalancing agent for prediction markets**
+AI-powered prediction market agent for Sapience on Arbitrum. Generate probability forecasts using Groq AI, enriched with cross-platform market data from Dome API.
 
-[![Hackathon](https://img.shields.io/badge/Hackathon-Sapience%202025-blue? style=flat-square)](https://www.sapience.xyz/hackathon)
-[![ElizaOS](https://img.shields.io/badge/Built%20with-ElizaOS-purple?style=flat-square)](https://github.com/elizaOS/eliza)
-[![DomeAPI](https://img.shields.io/badge/Data%20via-DomeAPI-green?style=flat-square)](https://www.domeapi.io/)
-[![License](https://img.shields.io/badge/License-MIT-yellow? style=flat-square)](LICENSE)
+## Features
 
-## 🎯 What Does It Do?
+- 🤖 **AI-Powered Forecasting**: Use Groq's Llama 3.3 70B model for probability estimation
+- 📊 **Cross-Platform Data**: Integrate Polymarket & Kalshi prices via Dome API
+- ⛓️ **Onchain Submission**: Post forecasts to Sapience on Arbitrum via SDK
+- 🎯 **Leaderboard Tracking**: Compete for accuracy rankings
+- 💰 **Optional Trading**: Execute trades when edge is detected (requires USDe)
 
-This agent autonomously: 
+## Quick Start
 
-1. **Discovers Arbitrage Opportunities** between Polymarket & Kalshi using DomeAPI
-2. **Executes Trades Automatically** when profitable spreads are detected
-3. **Rebalances Wallets** across platforms based on portfolio analysis & Kelly Criterion
-4. **Leverages Sapience Forecasts** to weight trading decisions & identify mispriced markets
-5. **Reports in Real-Time** via Discord/Telegram alerts & a live dashboard
-
-### 📊 Example Scenario
-
-```
-Market: "Will BTC exceed $100K by Dec 31?"
-
-Polymarket:  65% (BID)
-Kalshi:      62% (ASK)
-Spread:      3% ← PROFIT OPPORTUNITY! 
-
-Agent Action: 
-✓ Buys YES on Kalshi (cheaper)
-✓ Sells YES on Polymarket (more expensive)
-✓ Locks in 3% profit with ~$500 position
-✓ Rebalances portfolio to target allocation
-✓ Sends Discord alert:  "Arbitrage executed! Est. profit: $15"
-```
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js 18+
-- Redis (for caching)
-- PostgreSQL (for trade history)
-- API Keys:  Polymarket, Kalshi, DomeAPI, Sapience
-
-### Installation
+See [QUICKSTART.md](QUICKSTART.md) for detailed setup instructions.
 
 ```bash
-# Clone the repository
-git clone https://github.com/21givenchy/sapience-arbitrage-rebalancer.git
+# Install dependencies
+pnpm install
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your keys
+
+# Test connections
+node scripts/test-connection.js
+
+# Run forecasting agent
+pnpm dev
+```
+
+## Prerequisites
+
+- Node.js 18+
+- Ethereum wallet with ~0.01 ETH on Arbitrum
+- [Groq API key](https://console.groq.com/keys) (free)
+- Dome API key (contact Dome team)
+
+## Documentation
+
+- [QUICKSTART.md](QUICKSTART.md) - Complete setup guide
+- [docs/ETHEREUM_SETUP.md](docs/ETHEREUM_SETUP.md) - Wallet & funding guide
+- [docs/DOME_INTEGRATION.md](docs/DOME_INTEGRATION.md) - Dome API details
+
+## Project Structure
+
+```
+src/
+├── agents/
+│   ├── forecasting-agent.ts    # Sapience forecast generation & submission
+│   └── trading-agent.ts        # Trade execution (requires USDe)
+├── utils/
+│   ├── dome-client.ts          # Polymarket/Kalshi data client
+│   └── market-analyzer.ts      # Market analysis utilities
+└── config.ts                    # Configuration management
+
+scripts/
+├── wallet-helper.js            # Generate/check wallets
+├── test-connection.js          # Test all API connections
+└── wallet-setup.ps1            # Windows setup helper
+```
+
+## Architecture
+
+```mermaid
+graph LR
+    A[ForecastingAgent] --> B[Groq AI]
+    A --> C[DomeAPIClient]
+    C --> D[Polymarket]
+    C --> E[Kalshi]
+    A --> F[Sapience SDK]
+    F --> G[Arbitrum]
+```
+
+## Configuration
+
+Key environment variables in `.env`:
+
+```env
+PRIVATE_KEY=your_key_here
+GROQ_API_KEY=your_key_here
+DOME_API_KEY=your_key_here
+AGENT_MODE=forecasting
+MAX_FORECASTS=10
+```
+
+See [.env.example](.env.example) for all options.
+
+## Usage
+
+### Forecasting Only (No Trading)
+
+```bash
+AGENT_MODE=forecasting pnpm dev
+```
+
+### Trading Mode (Requires USDe)
+
+```bash
+AGENT_MODE=trading pnpm dev
+```
+
+### Both Agents
+
+```bash
+AGENT_MODE=both pnpm dev
+```
+
+## Resources
 cd sapience-arbitrage-rebalancer
 
 # Install dependencies

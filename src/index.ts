@@ -5,7 +5,7 @@
 import dotenv from "dotenv";
 import { ForecastingAgent } from "./agents/forecasting-agent";
 import { TradingAgent } from "./agents/trading-agent";
-import { validateConfig, API_KEYS } from "./config";
+import { validateConfig, API_KEYS, ETHEREUM_CONFIG } from "./config";
 
 dotenv.config();
 
@@ -23,12 +23,12 @@ async function main() {
     const maxTrades = parseInt(process.env.MAX_TRADES || "10");
 
     if (mode === "forecasting" || mode === "both") {
-      console.log("📊 Starting Forecasting Agent.. .\n");
-      const forecastingAgent = new ForecastingAgent(
-        API_KEYS. PRIVATE_KEY,
-        process.env.ARBITRUM_RPC_URL,
-        process. env.EAS_SCHEMA_UID
-      );
+      console.log("📊 Starting Forecasting Agent...\n");
+      const forecastingAgent = new ForecastingAgent({
+        privateKey: ETHEREUM_CONFIG.PRIVATE_KEY,
+        groqApiKey: API_KEYS.GROQ_API_KEY,
+        domeApiKey: API_KEYS.DOME_API_KEY,
+      });
 
       await forecastingAgent.run(maxForecasts);
 
@@ -45,10 +45,11 @@ async function main() {
 
     if (mode === "trading" || mode === "both") {
       console.log("💰 Starting Trading Agent...\n");
-      const tradingAgent = new TradingAgent(
-        API_KEYS.PRIVATE_KEY,
-        process.env. ARBITRUM_RPC_URL
-      );
+      const tradingAgent = new TradingAgent({
+        privateKey: ETHEREUM_CONFIG.PRIVATE_KEY,
+        arbitrumRpcUrl: ETHEREUM_CONFIG.ARBITRUM_RPC_URL,
+        domeApiKey: API_KEYS.DOME_API_KEY,
+      });
 
       await tradingAgent.run(maxTrades);
     }

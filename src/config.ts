@@ -40,8 +40,15 @@ export const SAPIENCE_CONFIG = {
 
 export const API_KEYS = {
   ANTHROPIC: process.env.ANTHROPIC_API_KEY || "",
-  PRIVATE_KEY: process.env. PRIVATE_KEY || "",
-  SAPIENCE_API_KEY: process.env. SAPIENCE_API_KEY || "",
+  PRIVATE_KEY: process.env.PRIVATE_KEY || "",
+  SAPIENCE_API_KEY: process.env.SAPIENCE_API_KEY || "",
+  GROQ_API_KEY: process.env.GROQ_API_KEY || "",
+  DOME_API_KEY: process.env.DOME_API_KEY || "",
+};
+
+export const ETHEREUM_CONFIG = {
+  PRIVATE_KEY: process.env.PRIVATE_KEY || "",
+  ARBITRUM_RPC_URL: process.env.ARBITRUM_RPC_URL || "https://arb1.arbitrum.io/rpc",
 };
 
 export interface Config {
