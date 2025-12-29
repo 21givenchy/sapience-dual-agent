@@ -24,12 +24,20 @@ export default function Home() {
                 AI-Powered Prediction Market Forecasting
               </p>
             </div>
-            <button
-              onClick={() => router.push('/dome')}
-              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg font-semibold transition-all transform hover:scale-105"
-            >
-              🔮 Dome Markets
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={() => router.push('/trade')}
+                className="px-6 py-3 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white rounded-lg font-semibold transition-all transform hover:scale-105"
+              >
+                💰 Trading Agent
+              </button>
+              <button
+                onClick={() => router.push('/dome')}
+                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg font-semibold transition-all transform hover:scale-105"
+              >
+                🔮 Dome Markets
+              </button>
+            </div>
           </div>
         </header>
 
