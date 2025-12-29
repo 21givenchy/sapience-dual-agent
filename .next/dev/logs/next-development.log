@@ -1,10 +1,4 @@
-[00:00:03.266] Server  LOG     ✓ Ready in 1996ms
-[00:00:09.496] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:16.827] Server  LOG     ○ Compiling /api/conditions ...
-[00:00:23.758] Server  LOG     ✅ Fetched 6 active conditions
-[00:00:25.391] Server  LOG     ✅ Fetched 6 active conditions
-[00:00:39.369] Server  LOG     
-🤖 Forecasting: Will Eliza Cloud be live before EOY?...
-[00:00:41.088] Server  LOG        Probability: 32%
-[00:00:41.091] Server  LOG        Confidence: 65%
-[00:00:41.096] Server  LOG        Reasoning: Base rate: AI dev projects launched within 3mo of teaser: 28%. Similar projects: Anthropic's Claude Cloud (delayed 8mo), ChatGPT plugins (delayed 4mo). Team size 12 vs competitors' 50+. Beta testing phase typically 16-20 weeks. Q4 holiday factor -30%. Small market, $50k vol.
+[00:00:05.858] Server  LOG     ✓ Ready in 3.9s
+[00:00:18.913] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:23.630] Server  LOG     ✅ Fetched 6 active conditions
+[00:00:24.325] Server  LOG     ✅ Fetched 6 active conditions
