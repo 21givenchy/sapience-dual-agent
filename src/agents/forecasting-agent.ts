@@ -1,8 +1,11 @@
 import 'dotenv/config';
 import Groq from 'groq-sdk';
-import { gql } from 'graphql-request';
-import { graphqlRequest, } from '@sapience/sdk';
+import { gql, GraphQLClient } from 'graphql-request';
 import { SAPIENCE_CONFIG } from '../config';
+
+// Sapience GraphQL endpoint
+const SAPIENCE_GRAPHQL_URL = 'https://api.sapience.xyz/graphql';
+const graphqlClient = new GraphQLClient(SAPIENCE_GRAPHQL_URL);
 
 interface Condition {
   id: string;
@@ -55,7 +58,7 @@ export class ForecastingAgent {
       }
     `;
     
-    const { conditions } = await graphqlRequest<{ conditions: any[] }>(query, {
+    const { conditions } = await graphqlClient.request<{ conditions: any[] }>(query, {
       nowSec,
       limit,
     });
@@ -137,14 +140,22 @@ Keep reasoning under 280 chars but be specific with numbers.`
     console.log(`📤 Submitting ${forecast.probability}% → ${forecast.conditionId.slice(0, 10)}...`);
     
     try {
-      // The SDK expects the condition to be submitted via submitTransaction
-      // with the EAS contract directly
-      const { submitTransaction } = await import('@sapience/sdk');
-      const { encodeAbiParameters, encodeFunctionData, parseAbiParameters } = await import('viem');
+      // Use viem directly instead of @sapience/sdk
+      const { createWalletClient, http, encodeAbiParameters, encodeFunctionData, parseAbiParameters } = await import('viem');
+      const { arbitrum } = await import('viem/chains');
+      const { privateKeyToAccount } = await import('viem/accounts');
       
       // EAS contract address on Arbitrum
       const EAS_ADDRESS = '0xbD75f629A22Dc1ceD33dDA0b68c546A1c035c458';
       const SCHEMA_ID = '0x7df55bcec6eb3b17b25c503cc318a36d33b0a9bbc2d6bc0d9788f9bd61980d49';
+      
+      // Create wallet client
+      const account = privateKeyToAccount(this.privateKey as `0x${string}`);
+      const client = createWalletClient({
+        account,
+        chain: arbitrum,
+        transport: http('https://arb1.arbitrum.io/rpc'),
+      });
       
       // Encode the attestation data
       const encodedData = encodeAbiParameters(
@@ -199,14 +210,10 @@ Keep reasoning under 280 chars but be specific with numbers.`
       });
 
       // Submit the transaction
-      const { hash } = await submitTransaction({
-        rpc: 'https://arb1.arbitrum.io/rpc',
-        privateKey: this.privateKey as `0x${string}`,
-        tx: {
-          to: EAS_ADDRESS as `0x${string}`,
-          data: attestationData as `0x${string}`,
-          value: '0',
-        },
+      const hash = await client.sendTransaction({
+        to: EAS_ADDRESS as `0x${string}`,
+        data: attestationData as `0x${string}`,
+        value: 0n,
       });
 
       console.log(`✅ TX: https://arbiscan.io/tx/${hash}`);
