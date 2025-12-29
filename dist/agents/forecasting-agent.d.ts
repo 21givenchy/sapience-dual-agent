@@ -1,60 +1,29 @@
-/**
- * Sapience Forecasting Agent
- *
- * Generates predictions and publishes forecasts via Sapience SDK
- * on Arbitrum. Predictions are ranked by accuracy on the Sapience leaderboard.
- *
- * No trading capital required - pure forecasting.
- */
+import 'dotenv/config';
 interface Condition {
     id: string;
     question: string;
     shortName?: string;
-    description?: string;
     endTime: number;
-    public: boolean;
+    description?: string;
 }
 interface Forecast {
-    marketId: string;
-    probability: number;
-    confidence: number;
-    reasoning: string;
-    expectedValue?: number;
-    recommendation?: string;
-    timestamp: number;
-    modelUsed?: string;
-}
-interface SubmissionResult {
-    hash: string;
     conditionId: string;
+    probability: number;
+    reasoning: string;
 }
 interface Config {
     privateKey: string;
     groqApiKey: string;
-    domeApiKey?: string;
-    domeApiUrl?: string;
 }
 export declare class ForecastingAgent {
     private groq;
     private privateKey;
-    private domeClient?;
+    private chainId;
     constructor(config: Config);
-    /**
-     * Fetch active conditions from Sapience API
-     */
-    getConditions(): Promise<Condition[]>;
-    /**
-     * Generate a forecast using Groq with Kimi model
-     */
+    getConditions(limit?: number): Promise<Condition[]>;
     generateForecast(condition: Condition): Promise<Forecast>;
-    /**
-     * Submit forecast via Sapience SDK
-     */
-    submitForecastToSapience(forecast: Forecast): Promise<SubmissionResult>;
-    /**
-     * Main forecasting loop
-     */
-    run(maxForecasts?: number): Promise<void>;
+    submitForecastToSapience(forecast: Forecast): Promise<string>;
+    runOneShot(): Promise<void>;
 }
 export {};
 //# sourceMappingURL=forecasting-agent.d.ts.map

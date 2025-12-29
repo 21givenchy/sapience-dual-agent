@@ -9,35 +9,35 @@ importers:
   .:
     dependencies:
       '@anthropic-ai/sdk':
-        specifier: ^0.71.2
-        version: 0.71.2(zod@3.23.8)
+        specifier: ^0.32.1
+        version: 0.32.1
       '@dome-api/sdk':
-        specifier: ^0.17.0
-        version: 0.17.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)(zod@3.23.8)
+        specifier: 0.18.0
+        version: 0.18.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)(zod@3.23.8)
       '@privy-io/server-auth':
-        specifier: ^1.32.5
+        specifier: ^1.14.2
         version: 1.32.5(bufferutil@4.1.0)(ethers@6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.43.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.23.8))
       '@sapience/sdk':
         specifier: ^0.0.1
         version: 0.0.1(@tanstack/react-query@5.90.13(react@18.3.1))(@uniswap/sdk-core@5.4.0)(@uniswap/v3-core@1.0.1)(@uniswap/v3-sdk@3.14.0(hardhat@2.28.0(bufferutil@4.1.0)(ts-node@10.9.2(@types/node@22.19.3)(typescript@5.9.3))(typescript@5.9.3)(utf-8-validate@5.0.10)))(date-fns@3.6.0)(embla-carousel@8.6.0)(graphql@16.12.0)(lucide-react@0.461.0(react@18.3.1))(react-dom@19.2.3(react@18.3.1))(react-hook-form@7.53.0(react@18.3.1))(react@18.3.1)(typescript@5.9.3)(viem@2.43.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.23.8))(wagmi@2.14.16(@tanstack/query-core@5.90.13)(@tanstack/react-query@5.90.13(react@18.3.1))(bufferutil@4.1.0)(react@18.3.1)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.43.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.23.8))(zod@3.23.8))
       axios:
-        specifier: ^1.7.2
+        specifier: ^1.7.9
         version: 1.13.2
       dotenv:
-        specifier: ^16.4.5
+        specifier: ^16.4.7
         version: 16.6.1
       ethers:
-        specifier: ^6.16.0
+        specifier: ^6.13.4
         version: 6.16.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       express:
         specifier: ^4.21.0
         version: 4.22.1
       graphql-request:
-        specifier: ^7.4.0
+        specifier: ^7.1.2
         version: 7.4.0(graphql@16.12.0)
       groq-sdk:
-        specifier: ^0.37.0
-        version: 0.37.0
+        specifier: ^0.8.0
+        version: 0.8.0
       node-fetch:
         specifier: ^2.7.0
         version: 2.7.0
@@ -87,14 +87,8 @@ packages:
   '@adraffy/ens-normalize@1.11.1':
     resolution: {integrity: sha512-nhCBV3quEgesuf7c7KYfperqSS14T8bYuvJ8PcLJp6znkZpFc0AuW4qBtr8eKVyPPe/8RSr7sglCWPU5eaxwKQ==}
 
-  '@anthropic-ai/sdk@0.71.2':
-    resolution: {integrity: sha512-TGNDEUuEstk/DKu0/TflXAEt+p+p/WhTlFzEnoosvbaDU2LTjm42igSdlL0VijrKpWejtOKxX0b8A7uc+XiSAQ==}
-    hasBin: true
-    peerDependencies:
-      zod: ^3.25.0 || ^4.0.0
-    peerDependenciesMeta:
-      zod:
-        optional: true
+  '@anthropic-ai/sdk@0.32.1':
+    resolution: {integrity: sha512-U9JwTrDvdQ9iWuABVsMLj8nJVwAyQz6QXvgLsVhryhCEPkLsbcP/MXxm+jYcAwLoV8ESbaTTjnD4kuAFa+Hyjg==}
 
   '@babel/code-frame@7.27.1':
     resolution: {integrity: sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==}
@@ -275,8 +269,8 @@ packages:
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
 
-  '@dome-api/sdk@0.17.0':
-    resolution: {integrity: sha512-u1wry9jf/UnQCoT9tK58JEd6V9eFDL4F4fie0LcoQ3xJLFCdQGlNQREqvmwrFqgV+7raEo/6hDUw5c76zBoXGg==}
+  '@dome-api/sdk@0.18.0':
+    resolution: {integrity: sha512-y0A7XzC5vJKyXSPi/n+A0ppIGKirmEfk7Jch6uYus/sdHWkuZsJqSTriCqdZaZ8GP7aoz/mGhiekR56J+eOmww==}
     engines: {node: '>=18.0.0'}
 
   '@ecies/ciphers@0.2.5':
@@ -3248,8 +3242,8 @@ packages:
     resolution: {integrity: sha512-DKKrynuQRne0PNpEbzuEdHlYOMksHSUI8Zc9Unei5gTsMNA2/vMpoMz/yKba50pejK56qj98qM0SjYxAKi13gQ==}
     engines: {node: ^12.22.0 || ^14.16.0 || ^16.0.0 || >=17.0.0}
 
-  groq-sdk@0.37.0:
-    resolution: {integrity: sha512-lT72pcT8b/X5XrzdKf+rWVzUGW1OQSKESmL8fFN5cTbsf02gq6oFam4SVeNtzELt9cYE2Pt3pdGgSImuTbHFDg==}
+  groq-sdk@0.8.0:
+    resolution: {integrity: sha512-hSgCjZCkoM4CY/TWfsaNlh512svWRR2td4HGpmEV8MbVEVrxZARJq5BHt8gbEF9Gex092/X7VJvaQpha0dIC8g==}
 
   h3@1.15.4:
     resolution: {integrity: sha512-z5cFQWDffyOe4vQ9xIqNfCZdV4p//vy6fBnr8Q1AWnVZ0teurKMG66rLj++TKwKPUP3u7iMUvrvKaEUiQw2QWQ==}
@@ -3667,10 +3661,6 @@ packages:
 
   json-rpc-random-id@1.0.1:
     resolution: {integrity: sha512-RJ9YYNCkhVDBuP4zN5BBtYAzEl03yq/jIIsyif0JY9qyJuQQZNeDK7anAPKKlyEtLSj2s8h6hNh2F8zO5q7ScA==}
-
-  json-schema-to-ts@3.1.1:
-    resolution: {integrity: sha512-+DWg8jCJG2TEnpy7kOm/7/AxaYoaRbjVB4LFZLySZlWn8exGs3A4OLJR966cVvU26N7X9TWxl+Jsw7dzAqKT6g==}
-    engines: {node: '>=16'}
 
   json-schema-traverse@0.4.1:
     resolution: {integrity: sha512-xbbCH5dCYU5T8LcEhhuh7HJ88HXuW3qsI3Y0zOZFKfZEHcpWiHU/Jxzk629Brsab/mMiHQti9wMP+845RPe3Vg==}
@@ -4575,9 +4565,6 @@ packages:
   tr46@0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
 
-  ts-algebra@2.0.0:
-    resolution: {integrity: sha512-FPAhNPFMrkwz76P7cdjdmiShwMynZYN6SgOujD1urY4oNm80Ou9oMdmbR45LotcKOXoy7wSmHkRFE6Mxbrhefw==}
-
   ts-api-utils@2.2.0:
     resolution: {integrity: sha512-L6f5oQRAoLU1RwXz0Ab9mxsE7LtxeVB6AIR1lpkZMsOyg/JXeaxBaXa/FVCBZyNr9S9I4wkHrlZTklX+im+WMw==}
     engines: {node: '>=18.12'}
@@ -5106,11 +5093,17 @@ snapshots:
 
   '@adraffy/ens-normalize@1.11.1': {}
 
-  '@anthropic-ai/sdk@0.71.2(zod@3.23.8)':
+  '@anthropic-ai/sdk@0.32.1':
     dependencies:
-      json-schema-to-ts: 3.1.1
-    optionalDependencies:
-      zod: 3.23.8
+      '@types/node': 18.19.130
+      '@types/node-fetch': 2.6.13
+      abort-controller: 3.0.0
+      agentkeepalive: 4.6.0
+      form-data-encoder: 1.7.2
+      formdata-node: 4.4.1
+      node-fetch: 2.7.0
+    transitivePeerDependencies:
+      - encoding
 
   '@babel/code-frame@7.27.1':
     dependencies:
@@ -5328,7 +5321,7 @@ snapshots:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
 
-  '@dome-api/sdk@0.17.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)(zod@3.23.8)':
+  '@dome-api/sdk@0.18.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)(zod@3.23.8)':
     dependencies:
       '@polymarket/builder-relayer-client': 0.0.6(bufferutil@4.1.0)(utf-8-validate@5.0.10)(zod@3.23.8)
       '@polymarket/builder-signing-sdk': 0.0.8
@@ -7109,7 +7102,7 @@ snapshots:
 
   '@scure/bip32@1.7.0':
     dependencies:
-      '@noble/curves': 1.9.1
+      '@noble/curves': 1.9.7
       '@noble/hashes': 1.8.0
       '@scure/base': 1.2.6
 
@@ -9098,7 +9091,7 @@ snapshots:
 
   graphql@16.12.0: {}
 
-  groq-sdk@0.37.0:
+  groq-sdk@0.8.0:
     dependencies:
       '@types/node': 18.19.130
       '@types/node-fetch': 2.6.13
@@ -9753,11 +9746,6 @@ snapshots:
       eth-rpc-errors: 4.0.3
 
   json-rpc-random-id@1.0.1: {}
-
-  json-schema-to-ts@3.1.1:
-    dependencies:
-      '@babel/runtime': 7.28.4
-      ts-algebra: 2.0.0
 
   json-schema-traverse@0.4.1: {}
 
@@ -10659,8 +10647,6 @@ snapshots:
   toidentifier@1.0.1: {}
 
   tr46@0.0.3: {}
-
-  ts-algebra@2.0.0: {}
 
   ts-api-utils@2.2.0(typescript@5.9.3):
     dependencies:

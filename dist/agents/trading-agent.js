@@ -20,11 +20,11 @@ class TradingAgent {
         this.minConfidence = 0.65;
         this.minExpectedValue = 1.1;
         this.provider = new ethers_1.ethers.JsonRpcProvider(config.arbitrumRpcUrl || "https://arb1.arbitrum.io/rpc");
-        this.signer = new ethers_1.ethers.Wallet(config.privateKey, this.provider);
+        const wallet = new ethers_1.ethers.Wallet(config.privateKey, this.provider);
         this.groq = new groq_sdk_1.default({
             apiKey: config.groqApiKey,
         });
-        this.walletAddress = ethers_1.ethers.getAddress(ethers_1.ethers.computeAddress(new ethers_1.ethers.SigningKey(config.privateKey).publicKey));
+        this.walletAddress = wallet.address;
     }
     /**
      * Fetch active markets from Sapience
@@ -89,7 +89,7 @@ Rules:
                 ],
                 model: 'moonshotai/kimi-k2-instruct-0905',
                 temperature: 0.5,
-                max_completion_tokens: 2048,
+                max_tokens: 2048,
                 top_p: 1,
                 stream: false,
             });

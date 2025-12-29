@@ -29,17 +29,18 @@
   "author": "21givenchy",
   "license": "MIT",
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.71.2",
-    "@dome-api/sdk": "^0.17.0",
-    "@privy-io/server-auth": "^1.32.5",
+    "@anthropic-ai/sdk": "^0.32.1",
+    "@dome-api/sdk": "0.18.0",
+    "@privy-io/server-auth": "^1.14.2",
     "@sapience/sdk": "^0.0.1",
-    "axios": "^1.7.2",
-    "dotenv": "^16.4.5",
-    "ethers": "^6.16.0",
+    "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
+    "ethers": "^6.13.4",
     "express": "^4.21.0",
-    "graphql-request": "^7.4.0",
-    "groq-sdk": "^0.37.0",
-    "node-fetch": "^2.7.0"
+    "graphql-request": "^7.1.2",
+    "groq-sdk": "^0.8.0",
+    "node-fetch": "^2.7.0",
+    "viem": "^2.43.3"
   },
   "devDependencies": {
     "@types/express": "^4.17.23",

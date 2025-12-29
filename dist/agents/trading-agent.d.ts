@@ -51,7 +51,6 @@ interface TradeDecision {
 export declare class TradingAgent {
     private groq;
     private provider;
-    private signer;
     private walletAddress;
     private minConfidence;
     private minExpectedValue;

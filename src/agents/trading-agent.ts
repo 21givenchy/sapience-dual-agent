@@ -32,15 +32,6 @@ interface Prediction {
   expected_value: number;
 }
 
-interface Trade {
-  market_id: string;
-  outcome: "YES" | "NO";
-  amount: number; // in USDe
-  price: number;
-  transaction_hash: string;
-  timestamp: Date;
-}
-
 interface Config {
   groqApiKey: string;
   privateKey: string;
@@ -70,20 +61,17 @@ interface TradeDecision {
 export class TradingAgent {
   private groq: Groq;
   private provider: ethers.JsonRpcProvider;
-  private signer: ethers.Signer;
   private walletAddress: string;
   private minConfidence: number = 0.65;
   private minExpectedValue: number = 1.1;
 
   constructor(config: Config) {
     this.provider = new ethers.JsonRpcProvider(config.arbitrumRpcUrl || "https://arb1.arbitrum.io/rpc");
-    this.signer = new ethers.Wallet(config.privateKey, this.provider);
+    const wallet = new ethers.Wallet(config.privateKey, this.provider);
     this.groq = new Groq({
       apiKey: config.groqApiKey,
     });
-    this.walletAddress = ethers.getAddress(
-      ethers.computeAddress(new ethers.SigningKey(config.privateKey).publicKey)
-    );
+    this.walletAddress = wallet.address;
   }
 
   /**
@@ -155,7 +143,7 @@ Rules:
         ],
         model: 'moonshotai/kimi-k2-instruct-0905',
         temperature: 0.5,
-        max_completion_tokens: 2048,
+        max_tokens: 2048,
         top_p: 1,
         stream: false,
       });

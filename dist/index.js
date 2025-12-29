@@ -26,7 +26,6 @@ async function main() {
             const forecastingAgent = new forecasting_agent_1.ForecastingAgent({
                 privateKey: config_1.ETHEREUM_CONFIG.PRIVATE_KEY,
                 groqApiKey: config_1.API_KEYS.GROQ_API_KEY,
-                domeApiKey: config_1.API_KEYS.DOME_API_KEY,
             });
             await forecastingAgent.run(maxForecasts);
             if (mode === "forecasting") {
@@ -41,8 +40,8 @@ async function main() {
             console.log("💰 Starting Trading Agent...\n");
             const tradingAgent = new trading_agent_1.TradingAgent({
                 privateKey: config_1.ETHEREUM_CONFIG.PRIVATE_KEY,
+                groqApiKey: config_1.API_KEYS.GROQ_API_KEY,
                 arbitrumRpcUrl: config_1.ETHEREUM_CONFIG.ARBITRUM_RPC_URL,
-                domeApiKey: config_1.API_KEYS.DOME_API_KEY,
             });
             await tradingAgent.run(maxTrades);
         }

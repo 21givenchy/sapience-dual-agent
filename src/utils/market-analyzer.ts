@@ -37,7 +37,7 @@ export function calculateMarketMetrics(
     spread,
     spreadPercent,
     liquidityScore,
-    volatility: 0. 5, // Would calculate from price history
+    volatility: 0.5, // Would calculate from price history
     timeToResolution: daysUntilResolution,
     marketConcentration,
   };

@@ -12,9 +12,9 @@ export const SAPIENCE_CONFIG = {
   // Arbitrum network
   ARBITRUM_RPC_URL: process.env.ARBITRUM_RPC_URL || "https://arb1.arbitrum.io/rpc",
   CHAIN_ID: 42161,
-
+   
   // Contracts
-  EAS_CONTRACT_ADDRESS: "0xA1207F3BBa224E02c159c0dFpF493b4e5C10e6B9", // EAS on Arbitrum
+  
   USDE_TOKEN_ADDRESS: "0xFd4cb59b3B0F51a08CEa8fade0F7B13d51180fff", // USDe on Arbitrum
 
   // Agent parameters
@@ -49,6 +49,7 @@ export const API_KEYS = {
 export const ETHEREUM_CONFIG = {
   PRIVATE_KEY: process.env.PRIVATE_KEY || "",
   ARBITRUM_RPC_URL: process.env.ARBITRUM_RPC_URL || "https://arb1.arbitrum.io/rpc",
+  CHAIN_ID: 42161,
 };
 
 export interface Config {
@@ -81,13 +82,13 @@ export function validateConfig(): Config {
     nodeEnv: process.env.NODE_ENV || 'development',
   };
 
-  // Only require Groq and Dome API keys
+  // Validate required keys
   if (!config.groqApiKey) {
     throw new Error('GROQ_API_KEY not set');
   }
   
-  if (!config.domeApiKey) {
-    throw new Error('DOME_API_KEY not set');
+  if (!process.env.PRIVATE_KEY) {
+    throw new Error('PRIVATE_KEY not set - required for submitting forecasts to Arbitrum');
   }
 
   return config;

@@ -8,7 +8,6 @@ export declare const SAPIENCE_CONFIG: {
     LEADERBOARD_ENDPOINT: string;
     ARBITRUM_RPC_URL: string;
     CHAIN_ID: number;
-    EAS_CONTRACT_ADDRESS: string;
     USDE_TOKEN_ADDRESS: string;
     FORECASTING: {
         MIN_CONFIDENCE: number;
@@ -36,6 +35,7 @@ export declare const API_KEYS: {
 export declare const ETHEREUM_CONFIG: {
     PRIVATE_KEY: string;
     ARBITRUM_RPC_URL: string;
+    CHAIN_ID: number;
 };
 export interface Config {
     groqApiKey: string;
